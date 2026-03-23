@@ -18,18 +18,36 @@ namespace DSATrees
             
         }
 
-public bool dfs(TNode<T> node, TNode<T> Goal, List<TNode<T>> visited, List<TNode<T>> solution )
-{
+        public bool simplex_dfs(int Level, TNode<T> node,
+                                    TNode<T> Goal, List<TNode<T>> visited,
+                                    List<TNode<T>> solution)
+        // This method uses the program stack to backtrack and the visited list to disallow cycles
+        // it is dependent on the IComparable implementation of TNode<T> to compare nodes and determine if the goal has been found
+        // Level is used for debugging purposes to show the depth of the search
+        // Solution is used to store the path to the goal node if found
+        // The method returns true if the goal is found and false otherwise.
+        // This is used to backtrack and build the solution path
+        // It does not use a frontier stack 
+        {
+            // Use LINQ to check if the node has been visited before.
+            // This is necessary to disallow cycles in the search
+            if (visited.Where(n => n.CompareTo(node) == 0).ToList().Count > 0)             {
+                Console.WriteLine($"Already visited {node.Value.ToString()} at level {Level}");
+                return false;
+            }
+            Console.WriteLine($"Visiting {node.Value.ToString()} at level {Level}");
             visited.Add(node);
             if (Goal.CompareTo(node) == 0)
                 return true;
             else if (node.children.Count > 0)
                 foreach (var child in node.children)
-                    if (dfs(child, Goal, visited, solution))
+                    if (simplex_dfs(Level + 1, child, Goal, visited, solution))
                     {
                         solution.Add(child);
+                        Console.WriteLine($"Found Goal Returning from {Level.ToString()} adding child {child.Value.ToString()}");
                         return true;
                     }
+                    else Console.WriteLine($"Backtracking from {child.Value.ToString()} to {node.Value.ToString()} at level {Level}");
             return false;
         }
 
